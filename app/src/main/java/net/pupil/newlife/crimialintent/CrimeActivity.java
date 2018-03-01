@@ -9,6 +9,7 @@ import java.util.UUID;
 /**
  * CriminalIntent程序Demo主入口
  */
+@Deprecated
 public class CrimeActivity extends SingleFragmentActivity {
 
     private static final String EXTRA_CRIME_ID =
