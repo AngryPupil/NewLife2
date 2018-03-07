@@ -15,6 +15,6 @@ public class MyApplication extends Application implements Constants {
     @Override
     public void onCreate() {
         super.onCreate();
-        IMClient.getInstance().init(getApplicationContext(), mediaServerIP, mediaServerport, httpServerAddress);
+//        IMClient.getInstance().init(getApplicationContext(), mediaServerIP, mediaServerport, httpServerAddress);
     }
 }
