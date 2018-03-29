@@ -60,7 +60,7 @@ public class CrimeFragment extends Fragment {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 mCrime.setTitle(s.toString());
-                returnResult();
+//                returnResult();
             }
 
             @Override
@@ -88,7 +88,7 @@ public class CrimeFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 mCrime.setSolved(isChecked);
-                returnResult();
+//                returnResult();
             }
         });
 
@@ -107,10 +107,10 @@ public class CrimeFragment extends Fragment {
         return crimeFragment;
     }
 
-    private void returnResult() {
-        Intent intent = CrimeListFragment.newIntent(CrimeLab.get(getActivity()).getIndexById(mCrime.getId()));
-        getActivity().setResult(Activity.RESULT_OK, intent);
-    }
+//    private void returnResult() {
+//        Intent intent = CrimeListFragment.newIntent(CrimeLab.get(getActivity()).getIndexById(mCrime.getId()));
+//        getActivity().setResult(Activity.RESULT_OK, intent);
+//    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -122,7 +122,13 @@ public class CrimeFragment extends Fragment {
             Date date = (Date) data.getSerializableExtra(DatePickerFragment.EXTRA_DATE);
             mCrime.setDate(date);
             updateDate();
-            returnResult();
+//            returnResult();
         }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        CrimeLab.get(getActivity()).updateCrime(mCrime);
     }
 }
