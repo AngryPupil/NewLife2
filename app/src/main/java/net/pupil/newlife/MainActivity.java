@@ -17,6 +17,7 @@ import net.pupil.newlife.bluetooth.BluetoothActivity;
 import net.pupil.newlife.crimialintent.CrimeListActivity;
 import net.pupil.newlife.expandablelistview.ExpandableActivity;
 import net.pupil.newlife.im.ImActivity;
+import net.pupil.newlife.vim.VIMActivity;
 
 import java.io.IOException;
 
@@ -103,6 +104,10 @@ public class MainActivity extends AppCompatActivity {
 
     public void bluetooth(View view) {
         startActivity(new Intent(this, BluetoothActivity.class));
+    }
+
+    public void openVIM(View view) {
+        startActivity(new Intent(this, VIMActivity.class));
     }
 
 }

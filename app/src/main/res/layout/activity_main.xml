@@ -68,4 +68,13 @@
         android:onClick="stopRecord"
         android:text="stopRecord"
         android:textAllCaps="false"/>
+
+    <Button
+        android:id="@+id/v_im_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/button3"
+        android:onClick="openVIM"
+        android:text="V网通"/>
 </RelativeLayout>
