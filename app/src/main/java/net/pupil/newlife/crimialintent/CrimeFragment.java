@@ -1,10 +1,18 @@
 package net.pupil.newlife.crimialintent;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.ContactsContract;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.ShareCompat;
+import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.format.DateFormat;
@@ -30,11 +38,16 @@ public class CrimeFragment extends Fragment {
     private static final String ARG_CRIME_ID = "crime_id";
     private static final String DIALOG_DATE = "DialogDate";
     private static final int REQUEST_DATE = 0;
+    private static final int REQUEST_SUSPECT = 1;
+    private static final int READ_CONTACTS_REQUEST_CODE = 2;
 
     private Crime mCrime;
     private EditText mTitleField;
     private Button mDateButton;
     private CheckBox mSolvedCheckBox;
+    private Button mReportButton;
+    private Button mSuspectButton;
+    private String mContactId;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -92,6 +105,46 @@ public class CrimeFragment extends Fragment {
             }
         });
 
+        mReportButton = (Button) v.findViewById(R.id.crime_report);
+        mReportButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                Intent intent = new Intent(Intent.ACTION_SEND);
+//                intent.setType("text/plain");
+//                intent.putExtra(Intent.EXTRA_TEXT, getCrimeReport());
+//                intent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.crime_report_subject));
+//                intent = Intent.createChooser(intent, getString(R.string.send_report));
+//                startActivity(intent);
+
+                ShareCompat.IntentBuilder intentBuilder = ShareCompat.IntentBuilder.from(getActivity());
+                intentBuilder.setType("text/plain");
+                intentBuilder.setText(getCrimeReport());
+                intentBuilder.setSubject(getString(R.string.crime_report_subject));
+                intentBuilder.setChooserTitle(getString(R.string.send_report));
+                startActivity(intentBuilder.getIntent());
+            }
+        });
+
+        final Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
+        //故意添加类别给Intent，使系统找不到匹配的Activity
+//        intent.addCategory(Intent.CATEGORY_HOME);
+        mSuspectButton = (Button) v.findViewById(R.id.crime_suspect);
+        mSuspectButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivityForResult(intent, REQUEST_SUSPECT);
+            }
+        });
+        if (mCrime.getSuspect() != null) {
+            mSuspectButton.setText(mCrime.getSuspect());
+        }
+
+        //判断是否有可用的应用
+        PackageManager packageManager = getActivity().getPackageManager();
+        if (packageManager.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY) == null) {
+            mSuspectButton.setEnabled(false);
+        }
+
         return v;
     }
 
@@ -143,6 +196,61 @@ public class CrimeFragment extends Fragment {
             mCrime.setDate(date);
             updateDate();
 //            returnResult();
+        } else if (requestCode == REQUEST_SUSPECT) {
+            Uri contactUri = data.getData();
+            String[] queryFields = new String[]{ContactsContract.Contacts._ID, ContactsContract.Contacts.DISPLAY_NAME};
+            Cursor c = getActivity().getContentResolver().query(contactUri, queryFields, null, null, null);
+            try {
+                if (c == null || c.getCount() == 0) {
+                    return;
+                }
+                c.moveToFirst();
+                mContactId = c.getString(c.getColumnIndex(ContactsContract.Contacts._ID));
+                String suspect = c.getString(c.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+                mCrime.setSuspect(suspect);
+                mSuspectButton.setText(suspect);
+
+                if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_DENIED) {
+                    requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, READ_CONTACTS_REQUEST_CODE);
+                } else {
+                    dialContactPhone();
+                }
+            } finally {
+                c.close();
+            }
+        }
+    }
+
+    private void dialContactPhone() {
+        Uri phoneUri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
+        String[] phoneQueryFields = new String[]{ContactsContract.CommonDataKinds.Phone.NUMBER};
+        String selection  = ContactsContract.CommonDataKinds.Phone.CONTACT_ID + "=?";
+        String[] selectionArgs = new String[]{mContactId};
+        Cursor phoneCursor = getActivity().getContentResolver().query(phoneUri, phoneQueryFields, selection, selectionArgs, null);
+        try {
+            if (phoneCursor == null || phoneCursor.getCount() == 0) {
+                return;
+            }
+            phoneCursor.moveToFirst();
+            String phoneNum = phoneCursor.getString(phoneCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+
+            Uri numUri = Uri.parse("tel:" + phoneNum);
+            Intent intent = new Intent(Intent.ACTION_DIAL, numUri);
+            startActivity(intent);
+        } finally {
+            phoneCursor.close();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == READ_CONTACTS_REQUEST_CODE) {
+            if (permissions[0].equals(Manifest.permission.READ_CONTACTS)) {
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    dialContactPhone();
+                }
+            }
         }
     }
 
