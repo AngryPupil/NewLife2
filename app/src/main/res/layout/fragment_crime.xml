@@ -4,19 +4,7 @@
               android:layout_height="match_parent"
               android:orientation="vertical">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/crime_title_label"
-        style="?android:attr/listSeparatorTextViewStyle"/>
-        <!-- “?”表示引用主题属性的值，会根据主题的不同而动态变化
-            “android:”表示系统主题 “attr/”可以省略 格式为?[namespace:]type/name -->
-
-    <EditText
-        android:id="@+id/crime_title"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/crime_title_hint"/>
+    <include layout="@layout/view_camera_and_title"/>
 
     <TextView
         android:layout_width="match_parent"

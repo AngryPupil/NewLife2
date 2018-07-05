@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -23,9 +24,12 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 
 import net.pupil.newlife.R;
 
+import java.io.File;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
@@ -40,6 +44,7 @@ public class CrimeFragment extends Fragment {
     private static final int REQUEST_DATE = 0;
     private static final int REQUEST_SUSPECT = 1;
     private static final int READ_CONTACTS_REQUEST_CODE = 2;
+    private static final int REQUEST_CAMERA = 3;
 
     private Crime mCrime;
     private EditText mTitleField;
@@ -48,6 +53,9 @@ public class CrimeFragment extends Fragment {
     private Button mReportButton;
     private Button mSuspectButton;
     private String mContactId;
+    private ImageView mCrimePhoto;
+    private ImageButton mCrimeCamera;
+    private File mPhotoFile;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -140,10 +148,28 @@ public class CrimeFragment extends Fragment {
         }
 
         //判断是否有可用的应用
-        PackageManager packageManager = getActivity().getPackageManager();
+        final PackageManager packageManager = getActivity().getPackageManager();
         if (packageManager.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY) == null) {
             mSuspectButton.setEnabled(false);
         }
+
+        mPhotoFile = CrimeLab.get(getActivity()).getPhotoFile(mCrime);
+        mCrimePhoto = (ImageView) v.findViewById(R.id.crime_photo);
+        mCrimeCamera = (ImageButton) v.findViewById(R.id.crime_camera);
+        final Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        boolean canTakePic = mPhotoFile != null && cameraIntent.resolveActivity(packageManager) != null;
+        mCrimeCamera.setEnabled(canTakePic);
+        if (canTakePic) {
+            Uri uri = Uri.fromFile(mPhotoFile);
+            cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+        }
+        mCrimeCamera.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivityForResult(cameraIntent, REQUEST_CAMERA);
+            }
+        });
+        updatePhotoView();
 
         return v;
     }
@@ -218,6 +244,8 @@ public class CrimeFragment extends Fragment {
             } finally {
                 c.close();
             }
+        } else if (requestCode == REQUEST_CAMERA) {
+            updatePhotoView();
         }
     }
 
@@ -251,6 +279,14 @@ public class CrimeFragment extends Fragment {
                     dialContactPhone();
                 }
             }
+        }
+    }
+
+    private void updatePhotoView() {
+        if (mPhotoFile == null || !mPhotoFile.exists()) {
+            mCrimePhoto.setImageDrawable(null);
+        } else {
+            mCrimePhoto.setImageBitmap(PhotoUtils.getScaledBitmap(mPhotoFile.getPath(), getActivity()));
         }
     }
 
