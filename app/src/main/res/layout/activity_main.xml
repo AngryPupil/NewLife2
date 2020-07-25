@@ -28,6 +28,7 @@
         android:layout_toRightOf="@id/im"/>
 
     <Button
+        android:id="@+id/button3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAllCaps="false"
@@ -35,8 +36,7 @@
         android:onClick="startRecord"
         android:layout_below="@+id/im"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:id="@+id/button3"/>
+        android:layout_alignParentStart="true"/>
 
     <Button
         android:id="@+id/button2"
@@ -71,10 +71,71 @@
 
     <Button
         android:id="@+id/v_im_btn"
-        android:layout_width="wrap_content"
+        android:layout_width="65dp"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_below="@+id/button3"
         android:onClick="openVIM"
         android:text="V网通"/>
+
+    <Button
+        android:id="@+id/test_ndk"
+        android:layout_width="55dp"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/v_im_btn"
+        android:layout_below="@+id/button3"
+        android:onClick="testNdk"
+        android:text="NDK"/>
+
+    <Button
+        android:id="@+id/dev_art"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/test_ndk"
+        android:layout_below="@+id/button3"
+        android:onClick="devArt"
+        android:text="2020.05.26" />
+
+    <Button
+        android:id="@+id/dev_art2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/dev_art"
+        android:layout_below="@+id/button3"
+        android:onClick="slideConflict"
+        android:text="滑动冲突横" />
+
+    <Button
+        android:id="@+id/dev_art3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/dev_art"
+        android:onClick="slideConflictPortrait"
+        android:text="滑动冲突竖" />
+
+    <Button
+        android:id="@+id/custom_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/dev_art"
+        android:layout_toRightOf="@id/dev_art3"
+        android:onClick="custom_view"
+        android:text="custom_view" />
+
+    <Button
+        android:id="@+id/expandable_recycler_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/dev_art"
+        android:layout_toRightOf="@id/custom_view"
+        android:onClick="expandable_recycler"
+        android:text="expandable" />
+
+    <Button
+        android:id="@+id/pupil_logic_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/dev_art3"
+        android:onClick="pupilLogic"
+        android:text="Pupil" />
 </RelativeLayout>

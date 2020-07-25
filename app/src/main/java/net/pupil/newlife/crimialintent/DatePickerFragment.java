@@ -3,7 +3,6 @@ package net.pupil.newlife.crimialintent;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.Instrumentation;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;

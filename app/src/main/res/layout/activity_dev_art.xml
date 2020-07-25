@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Text" />
+
+    <EditText
+        android:hint="edit text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <net.pupil.newlife.devart.DevArtView
+        android:id="@+id/DevArtView"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:background="#EEEEEE">
+
+        <Button
+            android:id="@+id/btn_scroller"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Scroller"
+            android:onClick="scroller" />
+    </net.pupil.newlife.devart.DevArtView>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="View Anim"
+        android:onClick="anim_translate" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Obj Anim"
+        android:onClick="anim_translate_obj" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Layout Anim"
+        android:onClick="layoutParamsAnim" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="anim slide"
+        android:onClick="animSlide"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="handler slide"
+        android:onClick="handlerSlide"/>
+
+</LinearLayout>

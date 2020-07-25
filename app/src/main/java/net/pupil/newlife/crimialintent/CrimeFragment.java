@@ -2,15 +2,20 @@ package net.pupil.newlife.crimialintent;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.ShareCompat;
 import android.support.v4.content.ContextCompat;
@@ -20,12 +25,14 @@ import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import net.pupil.newlife.R;
 
@@ -41,10 +48,13 @@ public class CrimeFragment extends Fragment {
 
     private static final String ARG_CRIME_ID = "crime_id";
     private static final String DIALOG_DATE = "DialogDate";
+    private static final String DIALOG_PHOTO = "DialogPhoto";
+    private static final String DIALOG_PHOTO_BITMAP = "dialog_photo_bitmap";
     private static final int REQUEST_DATE = 0;
     private static final int REQUEST_SUSPECT = 1;
     private static final int READ_CONTACTS_REQUEST_CODE = 2;
     private static final int REQUEST_CAMERA = 3;
+    private static final int REQUEST_VIEW_PHOTO = 4;
 
     private Crime mCrime;
     private EditText mTitleField;
@@ -169,10 +179,61 @@ public class CrimeFragment extends Fragment {
                 startActivityForResult(cameraIntent, REQUEST_CAMERA);
             }
         });
-        updatePhotoView();
+        mCrimePhoto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mPhotoFile == null || !mPhotoFile.exists()) {
+                    return;
+                }
+                PhotoDialogFragment dialogFragment = PhotoDialogFragment.newInstance(getScaledBitmap());
+                dialogFragment.setTargetFragment(CrimeFragment.this, REQUEST_VIEW_PHOTO);
+                dialogFragment.show(getFragmentManager(), DIALOG_PHOTO);
+            }
+        });
+        ViewTreeObserver treeObserver = mCrimePhoto.getViewTreeObserver();
+        treeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                updatePhotoView();
+            }
+        });
 
         return v;
     }
+
+    private Bitmap getScaledBitmap() {
+        return PhotoUtils.getScaledBitmap(mPhotoFile.getPath(), mCrimePhoto);
+    }
+
+    public static class PhotoDialogFragment extends DialogFragment {
+        @NonNull
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            View v = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_photo, null);
+            ImageView photoImageView = (ImageView) v.findViewById(R.id.crime_photo_image_view);
+            photoImageView.setImageBitmap((Bitmap) getArguments().getParcelable(DIALOG_PHOTO_BITMAP));
+            return new AlertDialog.Builder(getActivity())
+                    .setTitle(R.string.crime_photo)
+                    .setView(v)
+                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dismiss();
+                        }
+                    })
+                    .create();
+        }
+
+        public static PhotoDialogFragment newInstance(Bitmap bitmap) {
+            Bundle bundle = new Bundle();
+            bundle.putParcelable(DIALOG_PHOTO_BITMAP, bitmap);
+            PhotoDialogFragment photoDialogFragment = new PhotoDialogFragment();
+            photoDialogFragment.setArguments(bundle);
+            return photoDialogFragment;
+
+        }
+    }
+
 
     private void updateDate() {
         mDateButton.setText(DateFormat.format("EEEE,MMM dd,yyyy", mCrime.getDate()));
@@ -286,7 +347,7 @@ public class CrimeFragment extends Fragment {
         if (mPhotoFile == null || !mPhotoFile.exists()) {
             mCrimePhoto.setImageDrawable(null);
         } else {
-            mCrimePhoto.setImageBitmap(PhotoUtils.getScaledBitmap(mPhotoFile.getPath(), getActivity()));
+            mCrimePhoto.setImageBitmap(getScaledBitmap());
         }
     }
 
